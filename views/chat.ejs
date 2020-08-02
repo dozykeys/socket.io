@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+    <link rel="stylesheet" href="test.css" />
+  </head>
+  <body>
+    <div class="center">
+      <div class="chat">
+        <div class="messages" id="chat">
+          <div class="message parker">
+            Welcome!..let others know you are here..send a message 👋
+          </div>
+        </div>
+
+        <div class="input">
+          <input
+            class="did"
+            placeholder="Type your message here!"
+            type="text"
+          />
+          <input class="send" type="submit" value="Send" />
+        </div>
+      </div>
+    </div>
+
+    <script src="script2.js"></script>
+    <script defer>
+      const socket = io();
+      let name = "<%= name %>";
+      socket.once("new", (e) => {
+        const stark = document.createElement("div");
+        stark.classList = "message stark";
+        stark.innerHTML = `<small>${e.name}</small>${e.newMessage}`;
+        document.getElementById("chat").append(stark);
+        const chat = document.getElementById("chat");
+        chat.scrollTop = chat.scrollHeight - chat.clientHeight;
+      });
+      socket.once("disconnected", (e) => {
+        const dis = document.createElement("mark");
+        dis.innerText = e;
+        document.getElementById("chat").append(dis);
+        const chat = document.getElementById("chat");
+        chat.scrollTop = chat.scrollHeight - chat.clientHeight;
+      });
+      socket.once("joined", (e) => {
+        const join = document.createElement("mark");
+        join.innerText = `${e.user} joined`;
+        document.getElementById("chat").append(join);
+        const chat = document.getElementById("chat");
+        chat.scrollTop = chat.scrollHeight - chat.clientHeight;
+      });
+
+      document.querySelector(".send").addEventListener("click", (e) => {
+        e.preventDefault();
+        const message = document.querySelector(".did");
+        const newMessage = message.value;
+        if (!newMessage) return;
+
+        const parker = document.createElement("div");
+        parker.classList = "message parker";
+        parker.innerText = newMessage;
+        socket.emit("new", { newMessage, name });
+        document.getElementById("chat").append(parker);
+        message.value = null;
+        const chat = document.getElementById("chat");
+        chat.scrollTop = chat.scrollHeight - chat.clientHeight;
+      });
+    </script>
+  </body>
+</html>
